@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Habits{% endblock %}{% block page_label %}Habits{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CONSISTENCY OVER PERFECTION</p><h1>Habit tracker</h1><p class="subtitle">Build a rhythm that feels good, one day at a time.</p></div></div>
+<div class="content-grid manage-grid">
+  <section class="panel form-panel"><div class="panel-heading"><div><h2>Start a habit</h2><p>Keep it small enough to stick.</p></div></div><form method="post" action="{{ url_for('create_habit') }}" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label class="form-label">Habit name</label><input class="form-control" name="name" maxlength="80" placeholder="e.g. Take a short walk" required><button class="btn btn-primary w-100 mt-2">Add habit</button></form>
+    <div class="habit-guidance"><i class="fa-solid fa-seedling"></i><div><strong>Make it repeatable</strong><span>Choose an action you can comfortably do most days.</span></div></div>
+  </section>
+  <section class="panel list-panel"><div class="panel-heading"><div><h2>Your daily habits</h2><p>Week starting {{ week_start.isoformat() }}</p></div><span class="soft-badge">Weekly progress</span></div>
+    {% if habits %}<div class="habit-list">{% for habit in habits %}<article class="habit-card"><form method="post" action="{{ url_for('toggle_habit', habit_id=habit.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="habit-toggle {{ 'habit-done' if habit.done else '' }}" type="submit"><i class="fa-solid {{ 'fa-check' if habit.done else 'fa-plus' }}"></i><span>{{ 'Done today' if habit.done else 'Mark done' }}</span></button></form><div class="habit-details"><strong>{{ habit.name }}</strong><span>{{ habit.weekly_done }} of {{ weekly_days }} possible days this week</span><div class="progress budget-progress"><div class="progress-bar bg-success" style="width: {{ (habit.weekly_done / weekly_days * 100)|round|int }}%"></div></div></div><div class="habit-percent">{{ (habit.weekly_done / weekly_days * 100)|round|int }}%</div><form method="post" action="{{ url_for('delete_habit', habit_id=habit.id) }}" data-confirm="Delete this habit and its progress?"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="icon-btn danger-icon" title="Delete habit"><i class="fa-regular fa-trash-can"></i></button></form></article>{% endfor %}</div>{% else %}<div class="empty-state"><i class="fa-solid fa-seedling"></i><span>Your habit list is a blank page.</span><span>Add a daily habit to start tracking your progress.</span></div>{% endif %}
+  </section>
+</div>
+{% endblock %}

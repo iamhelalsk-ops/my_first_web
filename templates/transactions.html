@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Transactions{% endblock %}{% block page_label %}Transactions{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">MONEY, MADE CLEAR</p><h1>Transactions</h1><p class="subtitle">Keep every dollar accounted for.</p></div></div>
+<div class="content-grid manage-grid">
+  <section class="panel form-panel"><div class="panel-heading"><div><h2>{{ 'Edit transaction' if editing else 'Add transaction' }}</h2><p>{{ 'Update the details below.' if editing else 'Record income or an expense.' }}</p></div></div>
+    <form method="post" action="{{ url_for('edit_transaction', transaction_id=editing.id) if editing else url_for('create_transaction') }}" class="stack-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label class="form-label">Type</label><select class="form-select" name="kind" required><option value="expense" {{ 'selected' if not editing or editing.kind == 'expense' else '' }}>Expense</option><option value="income" {{ 'selected' if editing and editing.kind == 'income' else '' }}>Income</option></select>
+      <label class="form-label">Amount</label><div class="input-group"><span class="input-group-text">$</span><input class="form-control" type="number" name="amount" min="0.01" max="999999999" step="0.01" value="{{ editing.amount if editing else '' }}" placeholder="0.00" required></div>
+      <label class="form-label">Category</label><select class="form-select" name="category" required>{% for category in categories %}<option value="{{ category }}" {{ 'selected' if (editing and editing.category == category) or (not editing and category == 'Food') else '' }}>{{ category }}</option>{% endfor %}</select>
+      <label class="form-label">Date</label><input class="form-control" type="date" name="transaction_date" value="{{ editing.transaction_date if editing else today }}" required>
+      <label class="form-label">Description <span class="optional">(optional)</span></label><input class="form-control" name="description" maxlength="200" value="{{ editing.description if editing else '' }}" placeholder="What was this for?">
+      <button class="btn btn-primary w-100 mt-2" type="submit">{{ 'Save changes' if editing else 'Add transaction' }}</button>
+      {% if editing %}<a class="btn btn-light w-100" href="{{ url_for('transactions') }}">Cancel editing</a>{% endif %}
+    </form>
+  </section>
+  <section class="panel list-panel"><div class="panel-heading"><div><h2>All transactions</h2><p>{{ transactions|length }} record{{ '' if transactions|length == 1 else 's' }}</p></div></div>
+    <form method="get" class="filter-row">
+      <input class="form-control" type="date" name="start" value="{{ filters.start }}" aria-label="From date">
+      <input class="form-control" type="date" name="end" value="{{ filters.end }}" aria-label="To date">
+      <select class="form-select" name="category"><option value="">All categories</option>{% for category in categories %}<option {{ 'selected' if filters.category == category else '' }}>{{ category }}</option>{% endfor %}</select>
+      <select class="form-select" name="kind"><option value="">All types</option><option value="expense" {{ 'selected' if filters.kind == 'expense' else '' }}>Expenses</option><option value="income" {{ 'selected' if filters.kind == 'income' else '' }}>Income</option></select>
+      <button class="btn btn-light" type="submit" aria-label="Apply filters"><i class="fa-solid fa-filter"></i></button><a class="btn btn-light" href="{{ url_for('transactions') }}" aria-label="Clear filters"><i class="fa-solid fa-xmark"></i></a>
+    </form>
+    {% if transactions %}<div class="table-responsive"><table class="table smart-table align-middle"><thead><tr><th>Transaction</th><th>Category</th><th>Date</th><th>Amount</th><th></th></tr></thead><tbody>{% for item in transactions %}<tr><td><span class="row-title">{{ item.description or item.category }}</span><small class="d-block table-muted">{{ item.kind|title }}</small></td><td><span class="category-pill">{{ item.category }}</span></td><td class="table-muted">{{ item.transaction_date }}</td><td class="amount {{ 'positive' if item.kind == 'income' else '' }}">{{ '+' if item.kind == 'income' else '−' }}{{ item.amount|currency }}</td><td class="actions-cell"><a class="icon-btn" href="{{ url_for('transactions', edit=item.id) }}" title="Edit"><i class="fa-regular fa-pen-to-square"></i></a><form method="post" action="{{ url_for('delete_transaction', transaction_id=item.id) }}" data-confirm="Delete this transaction?"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="icon-btn danger-icon" type="submit" title="Delete"><i class="fa-regular fa-trash-can"></i></button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state"><i class="fa-solid fa-receipt"></i><span>No transactions match your filters.</span><a href="{{ url_for('transactions') }}">Clear filters</a></div>{% endif %}
+  </section>
+</div>
+{% endblock %}

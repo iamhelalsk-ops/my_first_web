@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>{% block title %}SmartLife{% endblock %} · SmartLife</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark"><i class="fa-solid fa-sparkles"></i></span><span>smartlife</span></a>
+    <div class="sidebar-label">WORKSPACE</div>
+    <nav class="nav flex-column">
+      <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-grid-2"></i>Overview</a>
+      <a class="nav-link {% if request.endpoint == 'transactions' %}active{% endif %}" href="{{ url_for('transactions') }}"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transactions</a>
+      <a class="nav-link {% if request.endpoint == 'budgets' %}active{% endif %}" href="{{ url_for('budgets') }}"><i class="fa-solid fa-wallet"></i>Budgets</a>
+      <a class="nav-link {% if request.endpoint == 'tasks' %}active{% endif %}" href="{{ url_for('tasks') }}"><i class="fa-regular fa-square-check"></i>Tasks</a>
+      <a class="nav-link {% if request.endpoint == 'habits' %}active{% endif %}" href="{{ url_for('habits') }}"><i class="fa-solid fa-seedling"></i>Habits</a>
+      <a class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}"><i class="fa-solid fa-chart-pie"></i>Reports</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-note"><div class="note-icon"><i class="fa-regular fa-lightbulb"></i></div><strong>Small steps add up.</strong><span>Keep your goals in sight and make today count.</span></div>
+      <div class="profile-chip"><div class="avatar">S</div><div><strong>Your space</strong><span>Personal dashboard</span></div></div>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <button class="mobile-menu btn btn-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button>
+      <div class="breadcrumb-label">Personal workspace <span>/</span> <strong>{% block page_label %}Overview{% endblock %}</strong></div>
+      <div class="topbar-right"><span class="today-label"><i class="fa-regular fa-calendar"></i> {{ today }}</span><div class="avatar avatar-small">S</div></div>
+    </header>
+    <div class="offcanvas offcanvas-start mobile-nav" tabindex="-1" id="mobileNav">
+      <div class="offcanvas-header"><a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark"><i class="fa-solid fa-sparkles"></i></span><span>smartlife</span></a><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+      <div class="offcanvas-body">
+        <nav class="nav flex-column">
+          <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-grid-2"></i>Overview</a>
+          <a class="nav-link" href="{{ url_for('transactions') }}"><i class="fa-solid fa-arrow-right-arrow-left"></i>Transactions</a>
+          <a class="nav-link" href="{{ url_for('budgets') }}"><i class="fa-solid fa-wallet"></i>Budgets</a>
+          <a class="nav-link" href="{{ url_for('tasks') }}"><i class="fa-regular fa-square-check"></i>Tasks</a>
+          <a class="nav-link" href="{{ url_for('habits') }}"><i class="fa-solid fa-seedling"></i>Habits</a>
+          <a class="nav-link" href="{{ url_for('reports') }}"><i class="fa-solid fa-chart-pie"></i>Reports</a>
+        </nav>
+      </div>
+    </div>
+    <section class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}</div>{% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
